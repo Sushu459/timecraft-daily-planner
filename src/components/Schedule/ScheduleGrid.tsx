@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { useScheduleStore, TaskItem } from "@/store/useScheduleStore";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { TimerControls } from "@/components/TimerControls";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -48,7 +49,7 @@ export default function ScheduleGrid({ dateStr }: Props) {
       <div className="grid grid-cols-[80px_1fr] gap-x-4">
         <div className="flex flex-col">
           {HOURS.map(h => (
-            <div key={h} className="h-20 text-sm text-muted-foreground flex items-start justify-end pr-1 pt-2">
+            <div key={h} className="h-24 text-sm text-muted-foreground flex items-start justify-end pr-1 pt-2">
               {String(h).padStart(2,'0')}:00
             </div>
           ))}
@@ -65,7 +66,7 @@ export default function ScheduleGrid({ dateStr }: Props) {
 
 function HourRow({ hour, tasks, onToggle }: { hour: number; tasks: TaskItem[]; onToggle: (id: string) => void; }) {
   return (
-    <div id={`hour-${hour}`} className="h-20 border-b relative" data-droppable>
+    <div id={`hour-${hour}`} className="h-24 border-b relative" data-droppable>
       <div className="absolute inset-0 p-2 flex gap-2 overflow-x-auto items-start">
         {tasks.map(t => (
           <TaskCard key={t.id} task={t} onToggle={onToggle} />
@@ -78,12 +79,15 @@ function HourRow({ hour, tasks, onToggle }: { hour: number; tasks: TaskItem[]; o
 function TaskCard({ task, onToggle }: { task: TaskItem; onToggle: (id: string) => void; }) {
   const color = categoryToColor(task.category);
   return (
-    <Card id={task.id} className={cn("px-3 py-2 min-w-[180px] select-none hover-scale cursor-grab", color)}>
-      <div className="flex items-center gap-2">
-        <Checkbox checked={task.completed} onCheckedChange={() => onToggle(task.id)} />
-        <div className="text-sm font-medium truncate">{task.title}</div>
+    <Card id={task.id} className={cn("px-3 py-2 min-w-[200px] select-none hover-scale cursor-grab", color)}>
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center gap-2">
+          <Checkbox checked={task.completed} onCheckedChange={() => onToggle(task.id)} />
+          <div className="text-sm font-medium truncate">{task.title}</div>
+        </div>
       </div>
-      <div className="text-xs text-muted-foreground mt-1">{task.start} - {task.end}</div>
+      <div className="text-xs text-muted-foreground mb-2">{task.start} - {task.end}</div>
+      <TimerControls taskId={task.id} duration={task.duration} />
     </Card>
   );
 }
