@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useTimerStore } from '@/store/useTimerStore';
 import { useScheduleStore } from '@/store/useScheduleStore';
 import { useAppStore } from '@/store/useAppStore';
-import { confetti } from 'canvas-confetti';
+import confetti from 'canvas-confetti';
 
 export const useTimer = () => {
   const intervalRef = useRef<NodeJS.Timeout>();
