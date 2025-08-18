@@ -1,14 +1,22 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTimerStore } from '@/store/useTimerStore';
 import { useScheduleStore } from '@/store/useScheduleStore';
 import { useAppStore } from '@/store/useAppStore';
+import { useNotifications } from './useNotifications';
 import confetti from 'canvas-confetti';
 
 export const useTimer = () => {
   const intervalRef = useRef<NodeJS.Timeout>();
+  const [completedTask, setCompletedTask] = useState<{
+    title: string;
+    category: string;
+    duration: number;
+  } | null>(null);
+  
   const { updateTimer, getTimerProgress, pauseTimer, resetTimer } = useTimerStore();
   const { updateTask, tasksForDate } = useScheduleStore();
   const { updateStreak, addTimeSpent } = useAppStore();
+  const { showNotification } = useNotifications();
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -30,6 +38,19 @@ export const useTimer = () => {
           
           if (completedTask) {
             addTimeSpent(completedTask.category, completedTask.duration);
+            
+            // Show browser notification
+            showNotification('✅ Task Completed!', {
+              body: `${completedTask.title} (${completedTask.duration} min) - Great work!`,
+              tag: 'task-completion'
+            });
+            
+            // Set completed task for modal
+            setCompletedTask({
+              title: completedTask.title,
+              category: completedTask.category,
+              duration: completedTask.duration
+            });
             
             // Check if all tasks for today are completed
             const allTasksCompleted = tasks.every(t => t.completed);
@@ -56,5 +77,8 @@ export const useTimer = () => {
     };
   }, [updateTimer, getTimerProgress, pauseTimer, resetTimer, updateTask, tasksForDate, updateStreak, addTimeSpent]);
 
-  return null;
+  return {
+    completedTask,
+    clearCompletedTask: () => setCompletedTask(null)
+  };
 };

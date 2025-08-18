@@ -13,6 +13,8 @@ import { StartAllButton } from "@/components/StartAllButton";
 import { useScheduleStore } from "@/store/useScheduleStore";
 import { useTimerStore } from "@/store/useTimerStore";
 import { useTimer } from "@/hooks/useTimer";
+import { useNotifications } from "@/hooks/useNotifications";
+import { TaskCompletionModal } from "@/components/TaskCompletionModal";
 import { format } from "date-fns";
 
 const Index = () => {
@@ -23,8 +25,9 @@ const Index = () => {
   const getActiveTimers = useTimerStore(s => s.getActiveTimers);
   const activeTimers = getActiveTimers();
   
-  // Initialize timer hook
-  useTimer();
+  // Initialize hooks
+  const { completedTask, clearCompletedTask } = useTimer();
+  useNotifications();
 
   return (
     <div className="min-h-screen bg-background">
@@ -87,6 +90,16 @@ const Index = () => {
 
       <TaskDialog open={open} onOpenChange={setOpen} date={selectedDate} />
       <QuickAddButton onClick={() => setOpen(true)} />
+      
+      {completedTask && (
+        <TaskCompletionModal
+          isOpen={!!completedTask}
+          onClose={clearCompletedTask}
+          taskTitle={completedTask.title}
+          taskCategory={completedTask.category}
+          taskDuration={completedTask.duration}
+        />
+      )}
     </div>
   );
 };

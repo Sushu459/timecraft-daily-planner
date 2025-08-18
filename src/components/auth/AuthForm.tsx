@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
@@ -16,6 +17,7 @@ interface AuthFormProps {
 export const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -63,6 +65,13 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
       });
 
       if (error) throw error;
+
+      // Store remember me preference
+      if (rememberMe) {
+        localStorage.setItem('timecraft_remember_user', formData.email);
+      } else {
+        localStorage.removeItem('timecraft_remember_user');
+      }
 
       toast({
         title: "Welcome back!",
@@ -222,6 +231,17 @@ export const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     )}
                   </Button>
                 </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="remember" 
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                />
+                <Label htmlFor="remember" className="text-sm font-normal">
+                  Remember me
+                </Label>
               </div>
               
               <Button type="submit" className="w-full" disabled={isLoading}>
